@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игровой Портал на HTML/JS</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --accent-color: #0f3460;
+            --text-color: #e94560;
+            --light-text: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--light-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 { color: var(--text-color); margin-bottom: 5px; }
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .tab-btn {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            border: 2px solid var(--accent-color);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background-color: var(--text-color);
+            border-color: var(--text-color);
+        }
+        .game-container {
+            display: none;
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .game-container.active { display: block; }
+        input, select, button {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+        input[type="number"], input[type="text"] {
+            width: 80%;
+            max-width: 200px;
+            text-align: center;
+        }
+        button {
+            background-color: var(--text-color);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        /* Game Specific Styles */
+        .grid-match {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        .card-match {
+            height: 70px;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 5px;
+            user-select: none;
+        }
+        .card-match.flipped { background-color: var(--text-color); }
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-width: 240px;
+            margin: 20px auto;
+        }
+        .sudoku-cell {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            background-color: #222;
+            color: #fff;
+            border: 1px solid var(--accent-color);
+        }
+        .sudoku-cell:disabled { background-color: #333; color: #aaa; }
+        .wheel-box { position: relative; margin: 20px auto; width: 200px; height: 200px; border-radius: 50%; border: 5px solid white; display: flex; align-items: center; justify-content: center; font-size: 24px; background: conic-gradient(from 0deg, #ff2a2a, #2a2aff, #2aff2a, #ffff2a, #ff2a2a); transition: transform 3s ease-out; }
+        .jeopardy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .jeopardy-btn { background-color: var(--accent-color); padding: 15px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>HTML5 Игровой Хаб</h1>
+    <p>Все игры в одном месте со звуками и адаптивным дизайном</p>
+</header>
+
+<div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('match')">Когда совпадение</button>
+    <button class="tab-btn" onclick="switchTab('guess')">Угадай число</button>
+    <button class="tab-btn" onclick="switchTab('sudoku')">Судоку (4x4)</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">Викторина</button>
+    <button class="tab-btn" onclick="switchTab('wheel')">Поле чудес</button>
+    <button class="tab-btn" onclick="switchTab('millionaire')">Миллионер</button>
+    <button class="tab-btn" onclick="switchTab('jeopardy')">Своя игра</button>
+</div>
+
+<!-- 1. КОГДА СОВПАДЕНИЕ -->
+<div id="match" class="game-container active">
+    <h2>Когда совпадение (Найди пары)</h2>
+    <p>Найдите одинаковые эмодзи!</p>
+    <div class="grid-match" id="match-grid"></div>
+    <div class="result" id="match-result"></div>
+</div>
+
+<!-- 2. УГАДАЙ ЧИСЛО -->
+<div id="guess" class="game-container">
+    <h2>Угадай число</h2>
+    <p>Я загадал число от 1 до 100. Попробуй угадать!</p>
+    <input type="number" id="guess-input" min="1" max="100" placeholder="Число">
+    <br>
+    <button onclick="checkGuess()">Проверить</button>
+    <div class="result" id="guess-result"></div>
+</div>
+
+<!-- 3. СУДОКУ (Упрощенная версия 4х4 для мобильности) -->
+<div id="sudoku" class="game-container">
+    <h2>Судоку (Мини 4х4)</h2>
+    <p>Заполните пустые ячейки цифрами от 1 до 4 без повторений в строках и столбцах.</p>
+    <div class="sudoku-grid" id="sudoku-grid"></div>
+    <button onclick="checkSudoku()">Проверить решение</button>
+    <div class="result" id="sudoku-result"></div>
+</div>
+
+<!-- 4. ВИКТОРИНА -->
+<div id="quiz" class="game-container">
+    <h2>Викторина</h2>
+    <div id="quiz-box">
+        <p id="quiz-question">Какой язык отвечает за скелет веб-страницы?</p>
+        <button onclick="checkQuiz(true)">HTML</button>
+        <button onclick="checkQuiz(false)">CSS</button>
+    </div>
+    <div class="result" id="quiz-result"></div>
+</div>
+
+<!-- 5. ПОЛЕ ЧУДЕС -->
+<div id="wheel" class="game-container">
+    <h2>Поле чудес</h2>
+    <p>Загаданное слово: <strong id="wheel-word">_ _ _ _</strong> (Сезон года)</p>
+    <div class="wheel-box" id="wheel-disc">🎰</div>
+    <button onclick="spinWheel()">Вращать барабан</button>
+    <div id="wheel-action" style="display:none;">
+        <input type="text" id="wheel-letter" maxlength="1" placeholder="Буква">
+        <button onclick="guessLetter()">Назвать букву</button>
+    </div>
+    <div class="result" id="wheel-result"></div>
+</div>
+
+<!-- 6. КТО ХОЧЕТ СТАТЬ МИЛЛИОНЕРОМ -->
+<div id="millionaire" class="game-container">
+    <h2>Кто хочет стать миллионером?</h2>
+    <div id="mill-box">
+        <p id="mill-q">Вопрос на 1 000 000 руб: Что длиннее?</p>
+        <button onclick="answerMill(true)">Экватор</button>
+        <button onclick="answerMill(false)">Метр</button>
+    </div>
+    <div class="result" id="mill-result"></div>
+</div>
+
+<!-- 7. СВОЯ ИГРА -->
+<div id="jeopardy" class="game-container">
+    <h2>Своя игра</h2>
+    <p>Выберите стоимость вопроса:</p>
+    <div class="jeopardy-grid" id="jeopardy-grid">
+        <button class="jeopardy-btn" onclick="playJeopardy(100, 'Как называется наша галактика?', 'Млечный путь')">Космос: 100</button>
+        <button class="jeopardy-btn" onclick="playJeopardy(200, 'Ближайшая к нам звезда (не считая Солнца)?', 'Проксима Центавра')">Космос: 200</button>
+    </div>
+    <div id="jeopardy-active" style="display:none; margin-top:20px;">
+        <p id="jeopardy-q"></p>
+        <input type="text" id="jeopardy-ans" placeholder="Ваш ответ">
+        <button onclick="checkJeopardy()">Ответить</button>
+    </div>
+    <div class="result" id="jeopardy-result"></div>
+</div>
+
+<script>
+    // Генерация звуков через Web Audio API (не требуются файлы)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        if (type === 'success') {
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'fail') {
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+            osc.frequency.setValueAtTime(165, audioCtx.currentTime + 0.1); // E3
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'click') {
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+    }
+
+    // Навигация
+    function switchTab(tabId) {
+        playSound('click');
+        document.querySelectorAll('.game-container').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // 1. КОГДА СОВПАДЕНИЕ
+    const emojis = ['🍎', '🍏', '🍌', '🍉', '🍎', '🍏', '🍌', '🍉'];
+    let shuffled = emojis.sort(() => 0.5 - Math.random());
+    let selected = [];
+    const grid = document.getElementById('match-grid');
+    shuffled.forEach((em, idx) => {
+        const card = document.createElement('div');
+        card.classList.add('card-match');
+        card.dataset.idx = idx;
+        card.onclick = () => {
+            if (selected.length < 2 && !card.classList.contains('flipped')) {
+                playSound('click');
+                card.classList.add('flipped');
+                card.innerText = em;
+                selected.push(card);
+                if (selected.length === 2) {
+                    if (shuffled[selected[0].dataset.idx] === shuffled[selected[1].dataset.idx]) {
+                        playSound('success');
+                        selected = [];
+                        if (document.querySelectorAll('.card-match.flipped').length === emojis.length) {
+                            document.getElementById('match-result').innerText = 'Вы победили!';
+                        }
+                    } else {
+                        playSound('fail');
+                        setTimeout(() => {
+                            selected[0].classList.remove('flipped');
+                            selected[0].innerText = '';
+                            selected[1].classList.remove('flipped');
+                            selected[1].innerText = '';
+                            selected = [];
+                        }, 1000);
+                    }
+                }
+            }
+        };
+        grid.appendChild(card);
+    });
+
+    // 2. УГАДАЙ ЧИСЛО
+    const secretNum = Math.floor(Math.random() * 100) + 1;
+    function checkGuess() {
+        const val = parseInt(document.getElementById('guess-input').value);
+        const res = document.getElementById('guess-result');
+        if (val === secretNum) {
+            playSound('success');
+            res.innerText = 'Верно! Вы угадали число.';
+            res.style.color = '#2aff2a';
+        } else if (val < secretNum) {
+            playSound('fail');
+            res.innerText = 'Загаданное число больше.';
+            res.style.color = '#e94560';
+        } else {
+            playSound('fail');
+            res.innerText = 'Загаданное число меньше.';
+            res.style.color = '#e94560';
+        }
+    }
+
+    // 3. СУДОКУ 4х4
+    const sudokuSolution = [
+        [1,2,3,4],
+        [3,4,1,2],
+        [2,3,4,1],
+        [4,1,2,3]
+    ];
+    const sudokuGrid = document.getElementById('sudoku-grid');
+    for(let r=0; r<4; r++) {
+        for(let c=0; c<4; c++) {
+            const cell = document.createElement('input');
+            cell.type = 'number';
+            cell.classList.add('sudoku-cell');
+            cell.dataset.r = r; cell.dataset.c = c;
+            if((r+c)%3 === 0) {
+                cell.value = sudokuSolution[r][c];
+                cell.disabled = true;
+            }
+            sudokuGrid.appendChild(cell);
+        }
+    }
+    function checkSudoku() {
+        let ok = true;
+        document.querySelectorAll('.sudoku-cell').forEach(cell => {
+            const r = cell.dataset.r; const c = cell.dataset.c;
+            if(parseInt(cell.value) !== sudokuSolution[r][c]) ok = false;
+        });
+        const res = document.getElementById('sudoku-result');
+        if(ok) { playSound('success'); res.innerText = 'Судоку решено верно!'; res.style.color='#2aff2a'; }
+        else { playSound('fail'); res.innerText = 'Есть ошибки. Попробуйте еще раз.'; res.style.color='#e94560'; }
+    }
+
+    // 4. ВИКТОРИНА
+    function checkQuiz(isCorrect) {
+        const res = document.getElementById('quiz-result');
+        if(isCorrect) { playSound('success'); res.innerText = 'Правильно! HTML задает структуру.'; res.style.color='#2aff2a'; }
+        else { playSound('fail'); res.innerText = 'Неверно. CSS отвечает за стили.'; res.style.color='#e94560'; }
+    }
+
+    // 5. ПОЛЕ ЧУДЕС
+    let wheelWord = "ЗИМА";
+    let guessedLetters = ["_", "_", "_", "_"];
+    let currentPoints = 0;
+    function spinWheel() {
+        playSound('click');
+        currentPoints = (Math.floor(Math.random() * 5) + 1) * 100;
+        const deg = Math.floor(Math.random() * 360) + 1080;
+        document.getElementById('wheel-disc').style.transform = `rotate(${deg}deg)`;
+        setTimeout(() => {
+            document.getElementById('wheel-result').innerText = `На барабане: ${currentPoints} очков! Введите букву.`;
+            document.getElementById('wheel-action').style.display = 'block';
+        }, 3000);
+    }
+    function guessLetter() {
+        const lt = document.getElementById('wheel-letter').value.toUpperCase();
+        if(!lt) return;
+        let found = false;
+        for(let i=0; i<wheelWord.length; i++) {
+            if(wheelWord[i] === lt) { guessedLetters[i] = lt; found = true; }
+        }
+        document.getElementById('wheel-word').innerText = guessedLetters.join(" ");
+        const res = document.getElementById('wheel-result');
+        if(found) {
+            playSound('success');
+            res.innerText = `Есть такая буква! Вы получили ${currentPoints} очков.`;
+            if(!guessedLetters.includes("_")) res.innerText += " Вы угадали всё слово!";
+        } else {
+            playSound('fail');
+            res.innerText = "Такой буквы нет.";
+        }
+        document.getElementById('wheel-letter').value = "";
+        document.getElementById('wheel-action').style.display = 'none';
+    }
+
+    // 6. МИЛЛИОНЕР
+    function answerMill(isCorrect) {
+        const res = document.getElementById('mill-result');
+        if(isCorrect) { playSound('success'); res.innerText = 'Поздравляем! Вы выиграли 1 000 000 рублей!'; res.style.color='#2aff2a'; }
+        else { playSound('fail'); res.innerText = 'Неверно. Вы уходите ни с чем.'; res.style.color='#e94560'; }
+    }
+
+    // 7. СВОЯ ИГРА
+    let activeJeopardyAns = "";
+    let activePoints = 0;
+    function playJeopardy(points, q, a) {
+        playSound('click');
+        activeJeopardyAns = a;
+        activePoints = points;
+        document.getElementById('jeopardy-q').innerText = q;
+        document.getElementById('jeopardy-active').style.display = 'block';
+    }
+    function checkJeopardy() {
+        const userAns = document.getElementById('jeopardy-ans').value.trim().toLowerCase();
+        const res = document.getElementById('jeopardy-result');
+        if(userAns === activeJeopardyAns.toLowerCase()) {
+            playSound('success');
+            res.innerText = `Верно! +${activePoints} очков.`;
+            res.style.color='#2aff2a';
+        } else {
+            playSound('fail');
+            res.innerText = `Ошибка. Правильный ответ: ${activeJeopardyAns}`;
+            res.style.color='#e94560';
+        }
+        document.getElementById('jeopardy-active').style.display = 'none';
+        document.getElementById('jeopardy-ans').value = "";
+    }
+</script>
+</body>
+</html>
