@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мульти-Игровой Неоновый Портал</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #131a2c;
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --neon-purple: #bd00ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #ffbd03;
+            --text-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: var(--panel-bg);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .user-badge {
+            background: rgba(0, 240, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--neon-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar-mini {
+            font-size: 20px;
+        }
+
+        .user-score-global {
+            color: var(--neon-gold);
+            font-weight: bold;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #090d16;
+            padding: 10px;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 8px var(--neon-purple);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .game-panel {
+            display: none;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .game-panel.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            border-left: 4px solid var(--neon-purple);
+            padding-left: 10px;
+            text-shadow: 0 0 5px rgba(189, 0, 255, 0.5);
+        }
+
+        button.action-btn {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #fff;
+            border: 1px solid var(--neon-blue);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        button.action-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transform: scale(1.02);
+        }
+
+        /* Modal / Reg Registration */
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(5, 7, 12, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 25px var(--neon-purple);
+            padding: 35px;
+            border-radius: 16px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-card h1 {
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #090d16;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .avatar-selector {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+        }
+
+        .avatar-option {
+            font-size: 35px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* --- GAME 1: Match --- */
+        .match-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+        .match-card {
+            height: 80px;
+            background: #1e293b;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .match-card.flipped {
+            background: #334155;
+            transform: rotateY(180deg);
+        }
+        .match-card.matched {
+            background: rgba(57, 255, 20, 0.2);
+            border-color: var(--neon-green);
+            cursor: default;
+        }
+
+        /* --- GAME 2: Guess Num --- */
+        .guess-container {
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* --- GAME 3: Sudoku --- */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 50px);
+            gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .sudoku-cell {
+            width: 50px;
+            height: 50px;
+            background: #090d16;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        .sudoku-cell:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+        .sudoku-cell[readonly] {
+            background: #1e293b;
+            color: var(--neon-blue);
+        }
+
+        /* --- GAME 4: Quiz --- */
+        .quiz-container, .millionaire-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .options-list {
+            list-style: none;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-item {
+            background: #1e293b;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s;
+        }
+        .option-item:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        /* --- GAME 5: Wheel of Fortune (Поле Чудес) --- */
+        .yakubovich-panel {
+            background: #1e293b;
+            border: 1px solid var(--neon-gold);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .yakubovich-avatar {
+            font-size: 40px;
+            background: #090d16;
+            padding: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--neon-gold);
+        }
+        .wheel-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .wheel-canvas-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+        #wheelCanvas {
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 189, 3, 0.4);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 20px solid var(--neon-pink);
+            z-index: 10;
+        }
+        .word-display {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .letter-box {
+            width: 45px;
+            height: 45px;
+            background: #090d16;
+            border: 2px solid var(--neon-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .bots-display {
+            background: #090d16;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .bot-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- GAME 6: Millionaire --- */
+        .money-scale {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        .scale-step {
+            padding: 4px 8px;
+            background: #090d16;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid transparent;
+        }
+        .scale-step.active {
+            border-color: var(--neon-gold);
+            color: var(--neon-gold);
+            font-weight: bold;
+        }
+
+        /* --- GAME 7: Jeopardy (Своя Игра) --- */
+        .jeopardy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .jeopardy-table th, .jeopardy-table td {
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            text-align: center;
+        }
+        .jeopardy-table th {
+            background: #090d16;
+            color: var(--neon-blue);
+        }
+        .jeopardy-cell-btn {
+            background: #1e293b;
+            color: var(--neon-gold);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .jeopardy-cell-btn:hover:not(:disabled) {
+            border-color: var(--neon-gold);
+            background: rgba(255, 189, 3, 0.1);
+        }
+        .jeopardy-cell-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+        /* --- CERTIFICATE VIEW --- */
+        .certificate-container {
+            display: none;
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            border: 10px double #ffbd03;
+            border-radius: 8px;
+            max-width: 700px;
+            margin: 30px auto;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+        }
+        .certificate-container h1 {
+            font-family: 'Georgia', serif;
+            color: #7c2d12;
+            margin-bottom: 10px;
+        }
+        .cert-holder {
+            font-size: 28px;
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 20px 0;
+            color: #1e3a8a;
+        }
+        .cert-score {
+            font-size: 22px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .match-grid { grid-template-columns: repeat(3, 1fr); }
+            .wheel-area { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- REGISTRATION MODAL -->
+    <div id="regModal" class="modal-overlay">
+        <div class="modal-card">
+            <h1>РЕГИСТРАЦИЯ ИГРОКА</h1>
+            <div class="input-group">
+                <label for="usernameInput">Ваше Имя:</label>
+                <input type="text" id="usernameInput" placeholder="Введите никнейм..." value="Игрок №1">
+            </div>
+            <label style="display:block; text-align:left; margin-bottom:8px; color:#94a3b8;">Выберите аватар:</label>
+            <div class="avatar-selector">
+                <span class="avatar-option selected" onclick="selectAvatar(this, '🚀')">🚀</span>
+                <span class="avatar-option" onclick="selectAvatar(this, '🥷')">🥷</span>
+                <span class="avatar-option" onclick="selectAvatar(this, '🦊')">🦊</span>
+                <span class="avatar-option" onclick="selectAvatar(this, '👾')">👾</span>
+            </div>
+            <button class="action-btn" style="width:100%; padding:14px;" onclick="completeRegistration()">Войти в игровой зал</button>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <div class="logo">⚡ НЕОН ПОРТАЛ</div>
+        <div style="display: flex; gap: 15px; align-items:center;">
+            <button class="action-btn" style="margin:0; background: linear-gradient(135deg, var(--neon-gold), #b45309); color:#000;" onclick="showCertificate()">📜 Сертификат</button>
+            <div class="user-badge">
+                <span id="globalAvatar" class="user-avatar-mini">🚀</span>
+                <span id="globalName" style="font-weight: bold;">Игрок</span>
+                <span style="color: #64748b;">|</span>
+                <span>Очки: <span id="globalScore" class="user-score-global">0</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('match')">🧩 Совпадение</button>
+        <button class="tab-btn" onclick="switchTab('guess')">🔮 Число</button>
+        <button class="tab-btn" onclick="switchTab('sudoku')">🔢 Судоку</button>
+        <button class="tab-btn" onclick="switchTab('quiz')">📝 Викторина</button>
+        <button class="tab-btn" onclick="switchTab('wheel')">🎡 Поле Чудес</button>
+        <button class="tab-btn" onclick="switchTab('millionaire')">💰 Миллионер</button>
+        <button class="tab-btn" onclick="switchTab('jeopardy')">👑 Своя Игра</button>
+    </div>
+
+    <!-- MAIN GAMES CONTAINER -->
+    <main class="main-content">
+
+        <!-- GAME 1: MATCH -->
+        <div id="panel-match" class="game-panel active">
+            <h2>Игра: Когда совпадение (Найди Пару)</h2>
+            <p style="margin-bottom:15px; color:#94a3b8;">Переворачивайте карточки и находите одинаковые эмодзи.</p>
+            <div class="match-grid" id="matchGrid"></div>
+            <div id="matchResult" style="font-weight:bold; color:var(--neon-green);"></div>
+            <button class="action-btn" onclick="initMatchGame()">Перезапустить</button>
+        </div>
+
+        <!-- GAME 2: GUESS NUMBER -->
+        <div id="panel-guess" class="game-panel">
+            <h2>Игра: Угадай число</h2>
+            <p style="margin-bottom:15px; color:#94a3b8;">Компьютер загадал число от 1 до 100. Попробуйте угадать!</p>
+            <div class="guess-container">
+                <div class="input-group">
+                    <input type="number" id="guessInput" min="1" max="100" placeholder="Ваш вариант...">
+                </div>
+                <button class="action-btn" onclick="checkGuess()">Проверить</button>
+                <div id="guessResult" style="margin-top:20px; font-weight:bold; min-height:24px;"></div>
+            </div>
+        </div>
+
+        <!-- GAME 3: SUDOKU -->
+        <div id="panel-sudoku" class="game-panel">
+            <h2>Игра: Мини-Судоку (4x4)</h2>
+            <p style="margin-bottom:15px; color:#94a3b8;">Заполните пустые ячейки цифрами от 1 до 4 так, чтобы они не повторялись в строках и столбцах.</p>
+            <div class="sudoku-grid" id="sudokuGrid"></div>
+            <button class="action-btn" onclick="checkSudoku()">Проверить решение</button>
+            <button class="action-btn" style="border-color:var(--neon-pink);" onclick="initSudoku()">Сбросить</button>
+            <div id="sudokuResult" style="margin-top:15px; font-weight:bold;"></div>
+        </div>
+
+        <!-- GAME 4: QUIZ -->
+        <div id="panel-quiz" class="game-panel">
+            <h2>Игра: Большая викторина</h2>
+            <div class="quiz-container">
+                <div id="quizQuestion" style="font-size:18px; margin-bottom:15px; font-weight:bold;"></div>
+                <ul class="options-list" id="quizOptions"></ul>
+                <div id="quizResult" style="font-weight:bold; margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- GAME 5: WHEEL OF FORTUNE (ПОЛЕ ЧУДЕС) -->
+        <div id="panel-wheel" class="game-panel">
+            <h2>Игра: Поле Чудес с Леонидом Якубовичем</h2>
+            
+            <div class="yakubovich-panel">
+                <div class="yakubovich-avatar">👨🏻‍💼</div>
+                <div>
+                    <div style="color:var(--neon-gold); font-weight:bold; font-size:14px;">ЛЕОНИД ЯКУБОВИЧ:</div>
+                    <div id="yakubovichSpeech" style="font-style:italic; color:#fff;">Приветствую вас на капитал-шоу! Крутите барабан!</div>
+                </div>
+            </div>
+
+            <div style="font-weight:bold; margin-bottom:10px; color:#94a3b8;">Задание: <span id="wheelHint" style="color:#fff;"></span></div>
+            <div class="word-display" id="wordDisplay"></div>
+
+            <div class="wheel-area">
+                <div class="wheel-canvas-container">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheelCanvas" width="250" height="250"></canvas>
+                </div>
+                <div style="flex:1; min-width:200px;">
+                    <button class="action-btn" id="spinBtn" style="background:var(--neon-purple); width:100%; margin-bottom:15px;" onclick="spinWheel()">Крутить Барабан</button>
+                    
+                    <div class="input-group" style="margin-bottom:10px;">
+                        <label for="letterInput">Назовите букву (рус):</label>
+                        <input type="text" id="letterInput" maxlength="1" style="text-transform: uppercase; text-align:center;">
+                    </div>
+                    <button class="action-btn" id="sayLetterBtn" style="width:100%;" onclick="playerGuessLetter()" disabled>Назвать Букву</button>
+                </div>
+            </div>
+
+            <div class="bots-display">
+                <div style="font-weight:bold; color:var(--neon-blue); margin-bottom:5px;">Соперники в студии:</div>
+                <div class="bot-row"><span>🤖 Бот Иван:</span><span id="botIvanScore">0 очков</span></div>
+                <div class="bot-row"><span>🤖 Бот Анна:</span><span id="botAnnaScore">0 очков</span></div>
+            </div>
+        </div>
+
+        <!-- GAME 6: MILLIONAIRE -->
+        <div id="panel-millionaire" class="game-panel">
+            <h2>Игра: Кто хочет стать миллионером</h2>
+            <div class="millionaire-container">
+                <div class="money-scale" id="millionaireScale"></div>
+                <div id="millQuestion" style="font-size:18px; margin-bottom:15px; font-weight:bold; color:var(--neon-gold);"></div>
+                <ul class="options-list" id="millOptions"></ul>
+                <div id="millResult" style="font-weight:bold; margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- GAME 7: JEOPARDY (СВОЯ ИГРА) -->
+        <div id="panel-jeopardy" class="game-panel">
+            <h2>Игра: Своя Игра</h2>
+            <p style="margin-bottom:15px; color:#94a3b8;">Выбирайте тему и стоимость вопроса. Неверный ответ отнимает очки!</p>
+            <table class="jeopardy-table" id="jeopardyTable"></table>
+
+            <!-- Active Question Modal Layer for Jeopardy -->
+            <div id="jeopardyQuestionModal" style="display:none; background:rgba(0,0,0,0.85); padding:20px; border-radius:12px; border:1px solid var(--neon-gold); margin-top:20px;">
+                <div id="jeopardyActiveText" style="font-size:18px; font-weight:bold; margin-bottom:15px;"></div>
+                <div class="input-group">
+                    <input type="text" id="jeopardyAnswerInput" placeholder="Введите ваш ответ...">
+                </div>
+                <button class="action-btn" onclick="submitJeopardyAnswer()">Ответить</button>
+            </div>
+            <div id="jeopardyStatus" style="font-weight:bold; margin-top:15px;"></div>
+        </div>
+
+        <!-- LIVE CERTIFICATE GENERATION VIEW -->
+        <div class="certificate-container" id="certificateBox">
+            <button style="position:absolute; top:10px; right:10px; background:#ef4444; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="closeCertificate()">X</button>
+            <h1>ПОЧЕТНЫЙ СЕРТИФИКАТ ИГРОКА</h1>
+            <p style="font-size:18px; font-style:italic;">Настоящим подтверждается, что</p>
+            <div class="cert-holder" id="certName">Имя Игрока</div>
+            <p style="font-size:16px;">успешно прошел комплекс интеллектуальных игр на игровом неоновом портале.</p>
+            <div class="cert-score" id="certScoreDisplay">Набранный счет: 0 очков</div>
+            <p style="font-size:14px; margin-top:30px; font-family:serif;">Дата выдачи: <span id="certDate">20.10.2026</span></p>
+            <p style="font-size:14px; margin-top:10px; font-weight:bold; color:#7c2d12;">Председатель игрового клуба: Л. Якубович</p>
+            <button class="action-btn" style="background:#1e3a8a; margin-top:20px; color:#fff; border:none;" onclick="window.print()">Распечатать / Сохранить в PDF</button>
+        </div>
+
+    </main>
+
+    <footer>
+        &copy; 2026 Неоновый Игровой Портал. Все права защищены.
+    </footer>
+
+    <script>
+        // GLOBAL STATE
+        let player = {
+            name: "Игрок",
+            avatar: "🚀",
+            score: 0
+        };
+        let currentTab = 'match';
+
+        // AUDIO GENERATOR (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch(e) { console.log("Audio error context", e); }
+        }
+
+        // TEXT TO SPEECH (Yakubovich voice synthesizer simulation)
+        function yakubovichSay(text) {
+            document.getElementById('yakubovichSpeech').innerText = text;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ru-RU';
+                utterance.rate = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function updateScore(amount) {
+            player.score += amount;
+            if(player.score < 0) player.score = 0;
+            document.getElementById('globalScore').innerText = player.score;
+        }
+
+        // REGISTRATION SYSTEM
+        function selectAvatar(el, av) {
+            playSound('click');
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            player.avatar = av;
+        }
+
+        function completeRegistration() {
+            let nameInput = document.getElementById('usernameInput').value.trim();
+            if(nameInput) player.name = nameInput;
+            
+            document.getElementById('globalName').innerText = player.name;
+            document.getElementById('globalAvatar').innerText = player.avatar;
+            document.getElementById('regModal').style.display = 'none';
+            
+            playSound('success');
+            setTimeout(() => {
+                yakubovichSay("Приветствуем вас на нашем неоновом игровом шоу! Выбирайте игру и погнали!");
+            }, 500);
+        }
+
+        // TAB SWITCHER
+        function switchTab(tabId) {
+            playSound('click');
+            currentTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+            
+            // Find trigger button
+            const btnIdx = ['match','guess','sudoku','quiz','wheel','millionaire','jeopardy'].indexOf(tabId);
+            if(btnIdx !== -1) document.querySelectorAll('.tab-btn')[btnIdx].classList.add('active');
+            
+            document.getElementById(`panel-${tabId}`).classList.add('active');
+
+            if(tabId === 'wheel') {
+                yakubovichSay("Сектор плюс на барабане! Вращайте колесо удачи!");
+            }
+        }
+
+        // --- GAME 1: MATCH CODE ---
+        let matchCards = [];
+        let firstMatchCard = null, secondMatchCard = null;
+        let lockMatchGrid = false;
+        const matchEmojis = ['🔥','💎','🎯','👑','👾','🚀','🤖','🍀'];
+
+        function initMatchGame() {
+            const grid = document.getElementById('matchGrid');
+            grid.innerHTML = '';
+            document.getElementById('matchResult').innerText = '';
+            matchCards = [...matchEmojis, ...matchEmojis].sort(() => Math.random() - 0.5);
+            firstMatchCard = null; secondMatchCard = null; lockMatchGrid = false;
+
+            matchCards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.classList.add('match-card');
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.innerText = '❓';
+                card.addEventListener('click', flipMatchCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipMatchCard() {
+            if (lockMatchGrid || this.classList.contains('flipped') || this.classList.contains('matched')) return;
+            playSound('click');
+            this.classList.add('flipped');
+            this.innerText = this.dataset.emoji;
+
+            if (!firstMatchCard) {
+                firstMatchCard = this;
+                return;
+            }
+            secondMatchCard = this;
+            lockMatchGrid = true;
+
+            if (firstMatchCard.dataset.emoji === secondMatchCard.dataset.emoji) {
+                firstMatchCard.classList.add('matched');
+                secondMatchCard.classList.add('matched');
+                updateScore(50);
+                playSound('success');
+                resetMatchTurn();
+                if(document.querySelectorAll('.match-card.matched').length === matchCards.length) {
+                    document.getElementById('matchResult').innerText = 'Отлично! Все пары найдены! (+200 бонуса)';
+                    updateScore(200);
+                }
+            } else {
+                playSound('fail');
+                setTimeout(() => {
+                    firstMatchCard.classList.remove('flipped');
+                    firstMatchCard.innerText = '❓';
+                    secondMatchCard.classList.remove('flipped');
+                    secondMatchCard.innerText = '❓';
+                    resetMatchTurn();
+                }, 1000);
+            }
+        }
+        function resetMatchTurn() { [firstMatchCard, secondMatchCard, lockMatchGrid] = [null, null, false]; }
+
+        // --- GAME 2: GUESS NUMBER CODE ---
+        let targetNumber = Math.floor(Math.random() * 100) + 1;
+        function checkGuess() {
+            const val = parseInt(document.getElementById('guessInput').value);
+            const res = document.getElementById('guessResult');
+            if(!val) return;
+
+            if(val === targetNumber) {
+                res.style.color = 'var(--neon-green)';
+                res.innerText = `Да! Число ${targetNumber} угадано! +100 очков.`;
+                playSound('success');
+                updateScore(100);
+                targetNumber = Math.floor(Math.random() * 100) + 1; // refresh
+            } else if(val < targetNumber) {
+                res.style.color = 'var(--neon-blue)';
+                res.innerText = "Мало! Загаданное число больше.";
+                playSound('fail');
+            } else {
+                res.style.color = 'var(--neon-pink)';
+                res.innerText = "Много! Загаданное число меньше.";
+                playSound('fail');
+            }
+        }
+
+        // --- GAME 3: SUDOKU CODE ---
+        const sudokuSolution = [
+            [1, 2, 3, 4],
+            [3, 4, 1, 2],
+            [2, 3, 4, 1],
+            [4, 1, 2, 3]
+        ];
+        function initSudoku() {
+            const grid = document.getElementById('sudokuGrid');
+            grid.innerHTML = '';
+            document.getElementById('sudokuResult').innerText = '';
+            for(let r=0; r<4; r++) {
+                for(let c=0; c<4; c++) {
+                    const cell = document.createElement('input');
+                    cell.type = 'number';
+                    cell.classList.add('sudoku-cell');
+                    cell.dataset.r = r; cell.dataset.c = c;
+                    if((r+c) % 3 === 0) {
+                        cell.value = sudokuSolution[r][c];
+                        cell.setAttribute('readonly', true);
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        function checkSudoku() {
+            const cells = document.querySelectorAll('.sudoku-cell');
+            let correct = true;
+            cells.forEach(cell => {
+                let r = cell.dataset.r, c = cell.dataset.c;
+                if(parseInt(cell.value) !== sudokuSolution[r][c]) correct = false;
+            });
+            const res = document.getElementById('sudokuResult');
+            if(correct) {
+                res.style.color = 'var(--neon-green)';
+                res.innerText = "Великолепно! Судоку решено верно! +150 очков.";
+                playSound('success'); updateScore(150);
+            } else {
+                res.style.color = 'var(--neon-pink)';
+                res.innerText = "Есть ошибки в заполнении. Попробуйте еще раз.";
+                playSound('fail');
+            }
+        }
+
+        // --- GAME 4: QUIZ ---
+        const quizData = [
+            { q: "Какая планета ближе всего к Солнцу?", o: ["Венера", "Меркурий", "Марс", "Земля"], a: 1 },
+            { q: "Какая река самая длинная в мире?", o: ["Амазонка", "Нил", "Миссисипи", "Волга"], a: 0 },
+            { q: "В каком году человек впервые полетел в космос?", o: ["1957", "1961", "1969", "1975"], a: 1 },
+            { q: "Какой химический элемент обозначается как Au?", o: ["Серебро", "Медь", "Золото", "Платина"], a: 2 },
+            { q: "Сколько материков на Земле?", o: ["5", "6", "7", "4"], a: 1 },
+            { q: "Столица Японии?", o: ["Киото", "Сеул", "Токио", "Пекин"], a: 2 },
+            { q: "Какая птица самая большая в мире?", o: ["Орел", "Альбатрос", "Страус", "Пингвин"], a: 2 },
+            { q: "Как называется самая глубокая впадина?", o: ["Гренландская", "Марианская", "Филиппинская", "Яванская"], a: 1 },
+            { q: "Кто написал 'Преступление и наказание'?", o: ["Толстой", "Чехов", "Достоевский", "Пушкин"], a: 2 },
+            { q: "Какой океан самый большой?", o: ["Атлантический", "Индийский", "Тихий", "Северный Ледовитый"], a: 2 }
+        ];
+        let currentQuizIdx = 0;
+        function loadQuizQuestion() {
+            if(currentQuizIdx >= quizData.length) {
+                document.getElementById('quizQuestion').innerText = "Викторина завершена!";
+                document.getElementById('quizOptions').innerHTML = '';
+                document.getElementById('quizResult').innerText = "Вы ответили на все вопросы!";
+                return;
+            }
+            let data = quizData[currentQuizIdx];
+            document.getElementById('quizQuestion').innerText = `${currentQuizIdx+1}. ${data.q}`;
+            const ops = document.getElementById('quizOptions');
+            ops.innerHTML = '';
+            data.o.forEach((opt, idx) => {
+                let li = document.createElement('li');
+                li.classList.add('option-item');
+                li.innerText = opt;
+                li.onclick = () => selectQuizOption(idx);
+                ops.appendChild(li);
+            });
+        }
+        function selectQuizOption(idx) {
+            if(idx === quizData[currentQuizIdx].a) {
+                playSound('success'); updateScore(30);
+                document.getElementById('quizResult').innerHTML = "<span style='color:var(--neon-green)'>Правильно! +30 очков</span>";
+            } else {
+                playSound('fail');
+                document.getElementById('quizResult').innerHTML = "<span style='color:var(--neon-pink)'>Неверно!</span>";
+            }
+            currentQuizIdx++;
+            setTimeout(loadQuizQuestion, 1200);
+        }
+
+        // --- GAME 5: WHEEL OF FORTUNE (ПОЛЕ ЧУДЕС) ---
+        const wheelWords = [
+            { w: "САМОБРАНКА", h: "Скатерть, которая сама кормит" },
+            { w: "КОМПЬЮТЕР", h: "Электронно-вычислительная машина" },
+            { w: "ТЕЛЕВИЗОР", h: "Прибор Леонида Аркадьевича для просмотра передач" }
+        ];
+        let targetWheelWord = wheelWords[0];
+        let revealedLetters = [];
+        let botScores = { ivan: 0, anna: 0 };
+        let currentWheelPoints = 100;
+
+        function initWheelGame() {
+            targetWheelWord = wheelWords[Math.floor(Math.random() * wheelWords.length)];
+            revealedLetters = Array(targetWheelWord.w.length).fill(false);
+            document.getElementById('wheelHint').innerText = targetWheelWord.h;
+            drawWordBoxes();
+            drawWheel();
+        }
+
+        function drawWordBoxes() {
+            const disp = document.getElementById('wordDisplay');
+            disp.innerHTML = '';
+            for(let i=0; i<targetWheelWord.w.length; i++) {
+                let box = document.createElement('div');
+                box.classList.add('letter-box');
+                box.innerText = revealedLetters[i] ? targetWheelWord.w[i] : '';
+                disp.appendChild(box);
+            }
+        }
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const sectors = ['100', '500', 'БАНКРОТ', '1000', 'ПРИЗ', '300', '700', '0'];
+            const colors = ['#1e293b', '#0f172a', '#ef4444', '#eab308', '#a855f7', '#06b6d4', '#10b981', '#64748b'];
+            
+            ctx.clearRect(0,0,250,250);
+            let angle = (2 * Math.PI) / sectors.length;
+            for(let i=0; i<sectors.length; i++) {
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.moveTo(125,125);
+                ctx.arc(125,125,120, i*angle, (i+1)*angle);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = '#fff';
+                ctx.translate(125,125);
+                ctx.rotate(i*angle + angle/2);
+                ctx.textAlign = "right";
+                ctx.font = "bold 10px sans-serif";
+                ctx.fillText(sectors[i], 110, 5);
+                ctx.restore();
+            }
+        }
+
+        function spinWheel() {
+            playSound('click');
+            const canvas = document.getElementById('wheelCanvas');
+            let randomDeg = Math.floor(Math.random() * 360) + 1440; // multirotation
+            canvas.style.transform = `rotate(${randomDeg}deg)`;
+            
+            document.getElementById('spinBtn').disabled = true;
+
+            setTimeout(() => {
+                let pointsOpts = [100, 500, 0, 1000, 200, 300, 700, 50];
+                currentWheelPoints = pointsOpts[Math.floor(Math.random() * pointsOpts.length)];
+                
+                if(currentWheelPoints === 0) {
+                    yakubovichSay("Ой-ёй-ёй, на барабане Банкрот! Ход переходит к боту Ивану!");
+                    setTimeout(botTurn, 2500);
+                } else {
+                    yakubovichSay(`На барабане ${currentWheelPoints} очков! Назовите букву!`);
+                    document.getElementById('sayLetterBtn').disabled = false;
+                }
+                document.getElementById('spinBtn').disabled = false;
+            }, 4000);
+        }
+
+        function playerGuessLetter() {
+            let input = document.getElementById('letterInput').value.trim().toUpperCase();
+            document.getElementById('letterInput').value = '';
+            if(!input) return;
+
+            document.getElementById('sayLetterBtn').disabled = true;
+
+            if(targetWheelWord.w.includes(input)) {
+                playSound('success');
+                let count = 0;
+                for(let i=0; i<targetWheelWord.w.length; i++) {
+                    if(targetWheelWord.w[i] === input && !revealedLetters[i]) {
+                        revealedLetters[i] = true;
+                        count++;
+                    }
+                }
+                updateScore(currentWheelPoints * count);
+                drawWordBoxes();
+                yakubovichSay(`Да! Есть такая буква! Откройте букву ${input}! Ваш ход продолжается.`);
+                checkWheelWin();
+            } else {
+                playSound('fail');
+                yakubovichSay(`Нет такой буквы! Ход переходит к боту Ивану.`);
+                setTimeout(botTurn, 2000);
+            }
+        }
+
+        function botTurn() {
+            let alphabet = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+            let randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+            
+            yakubovichSay(`Ходит Бот Иван. Он думает... и называет букву ${randomLetter}`);
+
+            setTimeout(() => {
+                if(targetWheelWord.w.includes(randomLetter)) {
+                    playSound('success');
+                    for(let i=0; i<targetWheelWord.w.length; i++) {
+                        if(targetWheelWord.w[i] === randomLetter) revealedLetters[i] = true;
+                    }
+                    botScores.ivan += 300;
+                    document.getElementById('botIvanScore').innerText = `${botScores.ivan} очков`;
+                    drawWordBoxes();
+                    yakubovichSay(`Иван угадал! Ход остается у Ивана.`);
+                    checkWheelWin();
+                    setTimeout(botTurn, 3000);
+                } else {
+                    playSound('fail');
+                    yakubovichSay(`Иван не угадал! Ход возвращается к вам, крутите барабан!`);
+                }
+            }, 2000);
+        }
+
+        function checkWheelWin() {
+            if(!revealedLetters.includes(false)) {
+                yakubovichSay(`Поздравляю! Слово полностью отгадано! Это слово ${targetWheelWord.w}! Вы получаете супер приз!`);
+                updateScore(500);
+                setTimeout(initWheelGame, 4000);
+            }
+        }
+
+        // --- GAME 6: MILLIONAIRE ---
+        const millData = [
+            { q: "Какое культовое транспортное средство было в фильме Назад в будущее?", o: ["DeLorean DMC-12", "Ford Mustang", "Ferrari F40", "Pontiac Trans Am"], a: 0, m: "1 000 руб" },
+            { q: "Какое максимальное количество игроков в футбольной команде на поле?", o: ["9", "10", "11", "12"], a: 2, m: "5 000 руб" },
+            { q: "Как называется столица Австралии?", o: ["Сидней", "Мельбурн", "Канберра", "Брисбен"], a: 2, m: "10 000 руб" },
+            { q: "Какая кость является самой маленькой в теле человека?", o: ["Стремечко", "Молоточек", "Наковальня", "Фаланга"], a: 0, m: "25 000 руб" },
+            { q: "Какая страна подарила США Статую Свободы?", o: ["Великобритания", "Франция", "Германия", "Италия"], a: 1, m: "50 000 руб" },
+            { q: "Какой газ составляет большую часть атмосферы Земли?", o: ["Кислород", "Азот", "Углекислый газ", "Аргон"], a: 1, m: "100 000 руб" },
+            { q: "В каком океане находится остров Мадагаскар?", o: ["Атлантический", "Тихий", "Индийский", "Южный"], a: 2, m: "200 000 руб" },
+            { q: "Какая планета Солнечной системы вращается 'лежа на боку'?", o: ["Нептун", "Сатурн", "Уран", "Юпитер"], a: 2, m: "400 000 руб" },
+            { q: "Кто из художников отрезал себе мочку уха?", o: ["Поль Гоген", "Винсент Ван Гог", "Пабло Пикассо", "Сальвадор Дали"], a: 1, m: "800 000 руб" },
+            { q: "Как звали первого компьютерного программиста в истории?", o: ["Ада Лавлейс", "Алан Тьюринг", "Грейс Хоппер", "Чарльз Бэббидж"], a: 0, m: "1 000 000 руб" }
+        ];
+        let currentMillIdx = 0;
+
+        function initMillionaire() {
+            const scale = document.getElementById('millionaireScale');
+            scale.innerHTML = '';
+            millData.forEach((d, i) => {
+                let div = document.createElement('div');
+                div.classList.add('scale-step');
+                div.id = `millStep-${i}`;
+                div.innerText = d.m;
+                scale.appendChild(div);
+            });
+            loadMillQuestion();
+        }
+
+        function loadMillQuestion() {
+            if(currentMillIdx >= millData.length) {
+                document.getElementById('millQuestion').innerText = "ПОЗДРАВЛЯЕМ! ВЫ МИЛЛИОНЕР!";
+                document.getElementById('millOptions').innerHTML = '';
+                document.getElementById('millResult').innerText = "Вы выиграли 1 000 000 рублей и +2000 игровых очков!";
+                updateScore(2000);
+                return;
+            }
+            // highlight current step
+            document.querySelectorAll('.scale-step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`millStep-${currentMillIdx}`).classList.add('active');
+
+            let data = millData[currentMillIdx];
+            document.getElementById('millQuestion').innerText = `Вопрос на ${data.m}: ${data.q}`;
+            const ops = document.getElementById('millOptions');
+            ops.innerHTML = '';
+            data.o.forEach((opt, idx) => {
+                let li = document.createElement('li');
+                li.classList.add('option-item');
+                li.innerText = opt;
+                li.onclick = () => selectMillOption(idx);
+                ops.appendChild(li);
+            });
+        }
+
+        function selectMillOption(idx) {
+            if(idx === millData[currentMillIdx].a) {
+                playSound('success');
+                updateScore(100);
+                document.getElementById('millResult').innerHTML = "<span style='color:var(--neon-green)'>Ответ верный! Двигаемся дальше!</span>";
+                currentMillIdx++;
+                setTimeout(loadMillQuestion, 1500);
+            } else {
+                playSound('fail');
+                document.getElementById('millResult').innerHTML = `<span style='color:var(--neon-pink)'>Неправильно! Вы проиграли шоу несгораемой суммы. Начните заново!</span>`;
+                currentMillIdx = 0;
+                setTimeout(loadMillQuestion, 2000);
+            }
+        }
+
+        // --- GAME 7: JEOPARDY (СВОЯ ИГРА) ---
+        const jeopardyData = {
+            categories: ["Космос", "Кино", "Автомобили"],
+            questions: [
+                { cat: 0, cost: 100, q: "Ближайшая к Земле звезда?", a: "Солнце" },
+                { cat: 0, cost: 200, q: "Первый космонавт Земли?", a: "Гагарин" },
+                { cat: 1, cost: 100, q: "Главный герой фильма Терминатор (актер)?", a: "Шварценеггер" },
+                { cat: 1, cost: 200, q: "Режиссер фильма Титаник?", a: "Кэмерон" },
+                { cat: 2, cost: 100, q: "Бренд создавший электромобиль Model S?", a: "Tesla" },
+                { cat: 2, cost: 200, q: "Какая страна производит суперкары Ferrari?", a: "Италия" }
+            ]
+        };
+        let activeJeopardyQ = null;
+        let activeJeopardyBtnRef = null;
+
+        function initJeopardy() {
+            const table = document.getElementById('jeopardyTable');
+            table.innerHTML = '';
+            
+            // Header
+            let trH = document.createElement('tr');
+            jeopardyData.categories.forEach(cat => {
+                let th = document.createElement('th');
+                th.innerText = cat;
+                trH.appendChild(th);
+            });
+            table.appendChild(trH);
+
+            // Setup row data grouped by values 100, 200
+            let values = [100, 200];
+            values.forEach(val => {
+                let tr = document.createElement('tr');
+                for(let c=0; c<jeopardyData.categories.length; c++) {
+                    let td = document.createElement('td');
+                    let qObj = jeopardyData.questions.find(q => q.cat === c && q.cost === val);
+                    if(qObj) {
+                        let btn = document.createElement('button');
+                        btn.classList.add('jeopardy-cell-btn');
+                        btn.innerText = val;
+                        btn.onclick = () => openJeopardyQ(qObj, btn);
+                        td.appendChild(btn);
+                    }
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            });
+        }
+
+        function openJeopardyQ(qObj, btn) {
+            playSound('click');
+            activeJeopardyQ = qObj;
+            activeJeopardyBtnRef = btn;
+            document.getElementById('jeopardyQuestionModal').style.display = 'block';
+            document.getElementById('jeopardyActiveText').innerText = `Вопрос: ${qObj.q}`;
+            document.getElementById('jeopardyAnswerInput').value = '';
+        }
+
+        function submitJeopardyAnswer() {
+            let userAns = document.getElementById('jeopardyAnswerInput').value.trim().toLowerCase();
+            let correctAns = activeJeopardyQ.a.toLowerCase();
+            let status = document.getElementById('jeopardyStatus');
+
+            document.getElementById('jeopardyQuestionModal').style.display = 'none';
+            activeJeopardyBtnRef.disabled = true;
+
+            if(userAns.includes(correctAns) || correctAns.includes(userAns) && userAns.length > 2) {
+                playSound('success');
+                updateScore(activeJeopardyQ.cost);
+                status.innerHTML = `<span style='color:var(--neon-green)'>Правильно! +${activeJeopardyQ.cost} очков</span>`;
+            } else {
+                playSound('fail');
+                updateScore(-activeJeopardyQ.cost);
+                status.innerHTML = `<span style='color:var(--neon-pink)'>Неверно! Правильный ответ: ${activeJeopardyQ.a}. -${activeJeopardyQ.cost} очков</span>`;
+            }
+        }
+
+        // CERTIFICATE MODULE
+        function showCertificate() {
+            playSound('click');
+            document.getElementById('certName').innerText = player.name;
+            document.getElementById('certScoreDisplay').innerText = `Итоговый счет: ${player.score} игровых очков`;
+            
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let yyyy = today.getFullYear();
+            document.getElementById('certDate').innerText = `${dd}.${mm}.${yyyy}`;
+
+            document.getElementById('certificateBox').style.display = 'block';
+            document.getElementById('certificateBox').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeCertificate() {
+            playSound('click');
+            document.getElementById('certificateBox').style.display = 'none';
+        }
+
+        // INITIALIZATIONS ON WINDOW LOAD
+        window.onload = () => {
+            initMatchGame();
+            initSudoku();
+            loadQuizQuestion();
+            initWheelGame();
+            initMillionaire();
+            initJeopardy();
+        };
+    </script>
+</body>
+</html>
